@@ -25,3 +25,8 @@ Welcome to the Data Engineering-Analytics Project repository! This project focus
 5. **Reporting:**
    - Embed code snippets and Snowflake charts in a Medium blog-style report.
    - Share your findings and analysis with the community.
+
+
+## Contribution Guidelines
+- Contributions are welcome! Feel free to open issues or pull requests.
+- For major changes, please open an issue first to discuss potential updates.
