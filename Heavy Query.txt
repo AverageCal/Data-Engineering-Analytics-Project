@@ -1,0 +1,24 @@
+with cte_main
+as
+(
+select
+h.hacker_id as hacker_id, 
+h.name as hacker_name, 
+count(c.challenge_id) as challenge_cnt
+from hackers h inner join challenges c
+on h.hacker_id =  c.hacker_id
+group by h.hacker_id, h.name
+),
+cte_chlng_cnt
+AS
+(
+select challenge_cnt, count(challenge_cnt) as cnt_same_challenge from cte_main
+where challenge_cnt <> (select max(challenge_cnt) as max_challenge_cnt from cte_main)
+group by challenge_cnt
+having count(challenge_cnt) > 1
+)
+select m.hacker_id, m.hacker_name, m.challenge_cnt from cte_main m
+left join cte_chlng_cnt cc
+on m.challenge_cnt = cc.challenge_cnt
+where cc.challenge_cnt is null
+order by challenge_cnt desc, hacker_id asc;
