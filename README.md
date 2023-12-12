@@ -27,8 +27,14 @@ Welcome to the Data Engineering-Analytics Project repository! This project focus
    - Share your findings and analysis with the community.
 
 
+<<<<<<< HEAD
 
 
 ## Contribution Guidelines
 - Contributions are welcome! Feel free to open issues or pull requests.
 - For major changes, please open an issue first to discuss potential updates.
+=======
+## Contribution Guidelines
+- Contributions are welcome! Feel free to open issues or pull requests.
+- For major changes, please open an issue first to discuss potential updates.
+>>>>>>> 3efd3c472cdc1a155e8a5d74f50b6e9008d71f60
