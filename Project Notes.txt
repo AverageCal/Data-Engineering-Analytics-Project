@@ -1,17 +1,14 @@
-DATA ENGINEERING-ANALYTICS PROJECT NOTES -  Data Engineering-Analytics Project
---------------------------------------------------------------
-Welcome to my data adventure! I'm diving into the world of customer shopping trends. Imagine a dataset filled with information about what people buy, how often, and more. My mission is to understand this data better.
-Firstly, I'll grab a dataset from Kaggle – a treasure trove for data enthusiasts. Using Python, I'll clean up the data, organize it into a main table (we call it the fact table) and some supporting tables (dimension tables). Think of it like putting together a jigsaw puzzle of customer behaviors.
-Once that's done, I'll save these organized pieces as CSV files. Why? Well, I'm going to store all my work on GitHub, a place where I can keep track of changes, share my progress, and collaborate with others.
-Next, I'm taking the CSVs to Snowflake, a powerful platform for handling large amounts of data. There, I'll create a space (warehouse) and set up everything needed to make sense of the data.
-Now, the fun part begins – I'll run queries on Snowflake to understand patterns, preferences, and trends in the shopping data. It's like becoming a detective, but with numbers!
-Lastly, I'm not keeping all this excitement to myself. I plan to share some of the cool code and insights on Medium, creating a story that's easy for everyone to follow.
-So, join me on this journey into the world of data and let's uncover the secrets hidden in customer shopping trends together!
+DATA ENGINEERING-ANALYTICS PROJECT NOTES -  
+Data Engineering-Analytics Project- Unveiling the Tapestry: A Deep Dive into Customer Shopping Trends with Data Engineering and Analytics
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Welcome to my data adventure! I'm immersing myself in the realm of customer shopping trends, armed with a dataset brimming with insights into people's buying habits. Picture a puzzle of consumer behaviors waiting to be pieced together. To kick things off, I'm heading to Kaggle, a haven for data enthusiasts, to snag a dataset. Using Python, I'll meticulously clean and organize the data, crafting a main table (the coveted fact table) and supporting tables (the trusty dimension tables). It's akin to assembling a jigsaw puzzle that reveals the intricacies of customer behaviors.
 
---Approach--
-----------------
-I intend to procure a flat file dataset from Kaggle, focusing on customers' shopping trends. My approach involves subsetting the data into a fact table and dimension tables, performing data cleaning and transformations using Python. The resulting subsets will be saved as CSV files. To maintain version control and storage, I plan to push all project files, including Python transformation notebooks, notes, ERD, and architecture design images, to my GitHub repository. Subsequently, I will ingest the CSVs from my local machine into a Snowflake stage via the Snowflake web UI. Following this, I will create a Snowflake warehouse, database, schemas, and tables to accommodate the CSV data. Analytical steps will be executed by querying the data in Snowflake. Additionally, I aim to present some of my code and Snowflake charts in a blog-style reporting format on Medium.
+Once the data is neatly organized, I'll preserve these pieces as CSV files. Why, you ask? Well, GitHub is the chosen abode for all my work – a space where I can track changes, showcase my progress, and collaborate with fellow enthusiasts.The next stop on this journey is Snowflake, a robust platform equipped to handle substantial data volumes. Here, I'll carve out a workspace (warehouse) and establish the foundations required to unravel the intricacies of the data.
 
+Now, the real fun begins – I'll unleash queries on Snowflake to unveil patterns, preferences, and trends hidden within the shopping data. Think of it as embarking on a detective mission, only with numbers!
+But wait, I'm not keeping this excitement to myself. I plan to share snippets of the code and intriguing insights on Medium, weaving a story that's accessible to all.
+
+Why this project? Well, it all started with a newfound passion. I recently stumbled upon this captivating field and decided to dive into a simple project to fuel my learning journey. I acknowledge that it may not be perfect, and there are countless optimal approaches, but I'm eager to witness my thought process manifest in this endeavor. Join me on this odyssey into the world of data, where together, we'll uncover the secrets concealed in customer shopping trends!
 
 EXPLORE, PROFILE DATASET:
 -----------------------------------
@@ -19,7 +16,6 @@ EXPLORE, PROFILE DATASET:
 dataset link: https://www.kaggle.com/datasets/iamsouravbanerjee/customer-shopping-trends-dataset?select=shopping_trends_updated.csv
 
 The Customer Shopping Preferences Dataset provides valuable insights into consumer behavior and purchasing patterns, serving as a useful resource for businesses seeking to align their strategies with customer needs. By analyzing customer attributes such as age, gender, purchase history, preferred payment methods, and frequency of purchases, businesses can make informed decisions to optimize products, marketing strategies, and overall customer experience. This synthetic dataset, designed for beginners in data analysis and machine learning, offers a diverse range of features that capture essential information for enhancing understanding of the customer base. Comprising 3900 records, the dataset delves into various aspects of customer shopping preferences, including feedback ratings, types of items purchased, shopping frequency, preferred seasons for shopping, and interactions with promotional offers. With this comprehensive collection of data, businesses can apply data-driven insights for better decision-making, shaping customer-centric strategies that cater to the unique preferences and behaviors of their target audience.
-
 
 
 DATA MODEL PREPARATION
