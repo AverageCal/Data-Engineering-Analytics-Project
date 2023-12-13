@@ -1,11 +1,16 @@
 DATA ENGINEERING-ANALYTICS PROJECT NOTES -  Data Engineering-Analytics Project
 --------------------------------------------------------------
-intro building:
--- Introduce main project here--
+Welcome to my data adventure! I'm diving into the world of customer shopping trends. Imagine a dataset filled with information about what people buy, how often, and more. My mission is to understand this data better.
+Firstly, I'll grab a dataset from Kaggle – a treasure trove for data enthusiasts. Using Python, I'll clean up the data, organize it into a main table (we call it the fact table) and some supporting tables (dimension tables). Think of it like putting together a jigsaw puzzle of customer behaviors.
+Once that's done, I'll save these organized pieces as CSV files. Why? Well, I'm going to store all my work on GitHub, a place where I can keep track of changes, share my progress, and collaborate with others.
+Next, I'm taking the CSVs to Snowflake, a powerful platform for handling large amounts of data. There, I'll create a space (warehouse) and set up everything needed to make sense of the data.
+Now, the fun part begins – I'll run queries on Snowflake to understand patterns, preferences, and trends in the shopping data. It's like becoming a detective, but with numbers!
+Lastly, I'm not keeping all this excitement to myself. I plan to share some of the cool code and insights on Medium, creating a story that's easy for everyone to follow.
+So, join me on this journey into the world of data and let's uncover the secrets hidden in customer shopping trends together!
 
 --Approach--
 ----------------
-So i plan on downloading a flat file dataset from kaggle on Customers shopping trends. I want to then subset the data into a fact table and dimension tables so that i can create a data model out of it. I will be doing all subsetting, data cleaning and transformations in Python after which i will write all subsets as csv files. I will then keep those CSVs in my github repository from where i will ingest them into Snowflake. I would create a warehouse,database,Schema and the necessary tables for my csvs. I will then query the data in Snowflake as my analytic steps. I also plan on embedding some of my code and snowflake charts in a blog style reporting form on the Medium website. 
+I intend to procure a flat file dataset from Kaggle, focusing on customers' shopping trends. My approach involves subsetting the data into a fact table and dimension tables, performing data cleaning and transformations using Python. The resulting subsets will be saved as CSV files. To maintain version control and storage, I plan to push all project files, including Python transformation notebooks, notes, ERD, and architecture design images, to my GitHub repository. Subsequently, I will ingest the CSVs from my local machine into a Snowflake stage via the Snowflake web UI. Following this, I will create a Snowflake warehouse, database, schemas, and tables to accommodate the CSV data. Analytical steps will be executed by querying the data in Snowflake. Additionally, I aim to present some of my code and Snowflake charts in a blog-style reporting format on Medium.
 
 
 EXPLORE, PROFILE DATASET:
@@ -19,68 +24,66 @@ The Customer Shopping Preferences Dataset provides valuable insights into consum
 
 DATA MODEL PREPARATION
 -----------------------------------
-### Fact Table:
-
+Fact Table:
 The fact table will contain the measures or quantitative information related to each transaction. In this case, the "Purchase Amount (USD)" and "Review Rating" seem like potential measures.
 
-**Fact Table: Transactions**
-- **Transaction_ID (Primary Key):** Unique identifier for each transaction (auto-incremented or another unique identifier).
-- **Customer_ID (Foreign Key):** Links to the Customer dimension table.
-- **Item_ID (Foreign Key):** Links to the Item dimension table.
-- **Location_ID (Foreign Key):** Links to the Location dimension table.
-- **Payment_Method_ID (Foreign Key):** Links to the Payment Method dimension table.
-- **Shipping_Type_ID (Foreign Key):** Links to the Shipping Type dimension table.
-- **Purchase_Amount (USD):** The amount of the purchase in USD.
-- **Review_Rating:** Rating given by the customer for the purchased item.
-- **Discount_Applied (Yes/No):** Indicates if a discount was applied to the purchase.
-- **Promo_Code_Used (Yes/No):** Indicates if a promo code was used for the purchase.
-- **Subscription_Status (Yes/No):** Indicates if the customer has a subscription.
-- **Previous_Purchases:** The total count of transactions concluded by the customer at the store, excluding the ongoing transaction.
-- **Frequency_of_Purchases:** Frequency at which the customer makes purchases (e.g., Weekly, Fortnightly, Monthly).
-- **Season:** Season during which the purchase was made.
+>> Fact Table: Transactions:
+- Transaction_ID (Primary Key): Unique identifier for each transaction (auto-incremented or another unique identifier).
+- Customer_ID (Foreign Key): Links to the Customer dimension table.
+- Item_ID (Foreign Key): Links to the Item dimension table.
+- Location_ID (Foreign Key): Links to the Location dimension table.
+- Payment_Method_ID (Foreign Key): Links to the Payment Method dimension table.
+- Shipping_Type_ID (Foreign Key): Links to the Shipping Type dimension table.
+- Purchase_Amount (USD): The amount of the purchase in USD.
+- Review_Rating: Rating given by the customer for the purchased item.
+- Discount_Applied (Yes/No): Indicates if a discount was applied to the purchase.
+- Promo_Code_Used (Yes/No): Indicates if a promo code was used for the purchase.
+- Subscription_Status (Yes/No): Indicates if the customer has a subscription.
+- Previous_Purchases: The total count of transactions concluded by the customer at the store, excluding the ongoing transaction.
+- Frequency_of_Purchases: Frequency at which the customer makes purchases (e.g., Weekly, Fortnightly, Monthly).
+- Season: Season during which the purchase was made.
 
-### Dimension Tables:
-
+>> Dimension Tables:
 Each dimension table provides additional details about the entities involved in the transactions.
 
-**Dimension Table 1: Customers**
-- **Customer_ID (Primary Key):** Unique identifier for each customer.
-- **Age:** Age of the customer.
-- **Gender:** Gender of the customer (Male/Female).
+> Dimension Table 1: Customers
+- Customer_ID (Primary Key): Unique identifier for each customer.
+- Age: Age of the customer.
+- Gender: Gender of the customer (Male/Female).
 
-**Dimension Table 2: Items**
-- **Item_ID (Primary Key):** Unique identifier for each item.
-- **Item_Purchased:** The item purchased by the customer.
-- **Category:** Category of the item purchased.
-- **Size:** Size of the purchased item.
-- **Color:** Color of the purchased item.
+> Dimension Table 2: Items
+- Item_ID (Primary Key): Unique identifier for each item.
+- Item_Purchased: The item purchased by the customer.
+- Category: Category of the item purchased.
+- Size: Size of the purchased item.
+- Color: Color of the purchased item.
 
-**Dimension Table 3: Locations**
-- **Location_ID (Primary Key):** Unique identifier for each location.
-- **Location:** Location where the purchase was made.
+> Dimension Table 3: Locations
+- Location_ID (Primary Key): Unique identifier for each location.
+- Location: Location where the purchase was made.
 
-**Dimension Table 4: Payment Methods**
-- **Payment_Method_ID (Primary Key):** Unique identifier for each payment method.
-- **Payment_Method:** Customer's most preferred payment method.
+> Dimension Table 4: Payment Methods
+- Payment_Method_ID (Primary Key): Unique identifier for each payment method.
+- Payment_Method: Customer's most preferred payment method.
 
-**Dimension Table 5: Shipping Types**
-- **Shipping_Type_ID (Primary Key):** Unique identifier for each shipping type.
-- **Shipping_Type:** Type of shipping chosen by the customer.
+> Dimension Table 5: Shipping Types
+- Shipping_Type_ID (Primary Key): Unique identifier for each shipping type.
+- Shipping_Type: Type of shipping chosen by the customer.
 
-### Relationships:
 
-- **Customer_ID in Transactions links to Customer_ID in Customers.**
-- **Item_ID in Transactions links to Item_ID in Items.**
-- **Location_ID in Transactions links to Location_ID in Locations.**
-- **Payment_Method_ID in Transactions links to Payment_Method_ID in Payment Methods.**
-- **Shipping_Type_ID in Transactions links to Shipping_Type_ID in Shipping Types.**
+>> Relationships:
+- Customer_ID in Transactions links to Customer_ID in Customers.
+- Item_ID in Transactions links to Item_ID in Items.
+- Location_ID in Transactions links to Location_ID in Locations.
+- Payment_Method_ID in Transactions links to Payment_Method_ID in Payment Methods.
+- Shipping_Type_ID in Transactions links to Shipping_Type_ID in Shipping Types.
 
 STEPS
 ----------------------------------
 >> PREPARE AN ERD DIAGRAM IN LUCIDCHART: done!
 >> TRANSFORMATION (SUBSETTING,CLEANING) IN PYTHON: done!
 >> LOADING DATA INTO GITHUB REPOSITORY: done!
->> CREATE SNOWFLAKE NECESSARY OBJECTS:wh,db,schema(external stage,lake,warehouse,marts,tables):
->> INGEST CSVS INTO SNOWFLAKE:
+>> CREATE SNOWFLAKE NECESSARY OBJECTS:wh,db,schema(Internal stages,lake,warehouse,marts,tables): done!
+>> INGEST CSVS INTO SNOWFLAKE: done!
 >> SQL QUERIES FOR ANALYTICS AND SNOWFLAKE DASHBOARD:
 >> MEDIUM WEBSITE PROJECT FINAL:

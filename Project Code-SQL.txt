@@ -1,0 +1,41 @@
+SQL CODE: 
+-------------
+-- Create Project Warehouse:
+USE ROLE SYSADMIN;
+CREATE WAREHOUSE PROJECT_WH
+WAREHOUSE_SIZE = 'SMALL'
+WAREHOUSE_TYPE = 'STANDARD'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE;
+
+CREATE OR REPLACE DATABASE ANALYTICS_DB;
+CREATE OR REPLACE SCHEMA ANALYTICS_DB.RAW_DATA; -- Data Lake
+CREATE OR REPLACE SCHEMA ANALYTICS_DB.PROD_DATA; -- Data Warehouse
+CREATE OR REPLACE SCHEMA ANALYTICS_DB.DATA_MART; -- Data Mart
+USE DATABASE ANALYTICS_DB;
+
+-- Create Stage for Data lake and warehouse:
+USE SCHEMA ANALYTICS_DB.RAW_DATA;
+CREATE OR REPLACE STAGE STG_PROJECT 
+	DIRECTORY = ( ENABLE = true );
+
+USE SCHEMA ANALYTICS_DB.PROD_DATA;
+CREATE OR REPLACE STAGE STG_PROJECT_PROD 
+	DIRECTORY = ( ENABLE = true );
+
+
+-- Lets confirm and see if our tables were ingested properly:
+USE ROLE ACCOUNTADMIN;
+
+SELECT * 
+FROM fct_transactions ft
+JOIN dim_customers dc 
+     ON dc.customer_id = ft.customer_id
+JOIN dim_items di 
+     ON di.item_id = ft.item_id
+JOIN dim_locations dl 
+     ON dl.location_id = ft.location_id
+JOIN dim_payment_methods dpm 
+     ON dpm.payment_method_id = ft.payment_method_id
+JOIN dim_shipping_types dst 
+     ON dst.shipping_type_id = ft.shipping_type_id; 
