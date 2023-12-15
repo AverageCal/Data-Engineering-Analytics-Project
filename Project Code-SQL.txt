@@ -39,3 +39,237 @@ JOIN dim_payment_methods dpm
      ON dpm.payment_method_id = ft.payment_method_id
 JOIN dim_shipping_types dst 
      ON dst.shipping_type_id = ft.shipping_type_id; 
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-- Lets create a table that contains only demographic and cutstomer shopping trends
+CREATE OR REPLACE TABLE ANALYTICS_DB.DATA_MART.CUSTOMER_DEMOGRAPHIC_SHOPPING_TRENDS
+AS
+SELECT 
+    Customer_ID,
+    c.age,
+    c.gender,
+    Purchase_Amount_USD,
+    Review_Rating,
+    Discount_Applied,
+    Promo_Code_Used,
+    Subscription_Status,
+    Previous_Purchases,
+    Frequency_of_Purchases,
+    Season    
+FROM ANALYTICS_DB.PROD_DATA.fct_transactions ft
+JOIN ANALYTICS_DB.PROD_DATA.dim_customers c
+USING (customer_id); 
+
+SELECT * FROM ANALYTICS_DB.DATA_MART.customer_demographic_shopping_trends;
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+-- Lets create a product information data mart table we would use later:
+CREATE OR REPLACE TABLE ANALYTICS_DB.DATA_MART.product_information
+AS
+SELECT
+    di.Item_ID,
+    dpm.Payment_Method_ID,
+    Purchase_Amount_USD,
+    Payment_Method,
+    Item_Purchased,
+    Category,
+    Size,
+    Color,
+    Season
+FROM ANALYTICS_DB.PROD_DATA.fct_transactions ft
+JOIN ANALYTICS_DB.PROD_DATA.dim_items di
+    ON di.item_id = ft.item_id
+JOIN ANALYTICS_DB.PROD_DATA.dim_payment_methods dpm
+    ON dpm.payment_method_id = ft.payment_method_id;
+
+SELECT  * FROM ANALYTICS_DB.DATA_MART.PRODUCT_INFORMATION;
+
+-- Market Basket Analysis Step
+SELECT 
+    Item_Purchased,
+    Category,
+    Size,
+    Color,
+    count(*) AS transactions_per_combo
+FROM ANALYTICS_DB.DATA_MART.PRODUCT_INFORMATION
+GROUP BY 1,2,3,4
+ORDER BY Item_Purchased, transactions_per_combo DESC;
+
+--------------------------------------------------------------------------------------------------------------
+
+-- Lets look at shipping types and locations together for logistical insights:
+CREATE OR REPLACE TABLE ANALYTICS_DB.DATA_MART.purchase_logistics_information
+AS
+SELECT
+    ft.Location_ID,
+    ft.Shipping_Type_ID,
+    ft.Item_ID,
+    Location,
+    Shipping_Type,
+    Item_Purchased,
+    Category,
+    Size,
+    Color,
+    Purchase_Amount_USD,
+    Season
+FROM ANALYTICS_DB.PROD_DATA.fct_transactions ft
+JOIN ANALYTICS_DB.PROD_DATA.dim_locations dl
+    ON dl.location_id = ft.location_id
+JOIN ANALYTICS_DB.PROD_DATA.dim_shipping_types dst
+    ON dst.shipping_type_id = ft.shipping_type_id
+JOIN ANALYTICS_DB.PROD_DATA.dim_items di
+    ON di.item_id = ft.item_id;
+
+SELECT * FROM ANALYTICS_DB.DATA_MART.purchase_logistics_information;
+
+
+------------------------------------------------------------------------------------
+-- Total Purhase Amount for all customers and then for males and females:
+SELECT
+    ROUND(SUM(purchase_amount_usd),2) as total_amount_all,
+    ROUND(SUM(CASE WHEN gender = 'Male' THEN purchase_amount_usd END),2) as total_amount_male,
+    ROUND(SUM(CASE WHEN gender = 'Female' THEN purchase_amount_usd END),2) as total_amount_female
+FROM ANALYTICS_DB.DATA_MART.customer_demographic_shopping_trends; 
+
+results= Total customer expenditure amounts to $233,081, with $157,890 attributed to male customers and $75,191 to female customers.
+
+
+
+---------------------------------------------------------------------------------
+-- Query to analyze the distribution of customers by age and their weighted average purchase amount:
+SELECT
+    age,
+    SUM(Customer_Count) AS Total_Customers,
+    ROUND(SUM(Customer_Count * Avg_Purchase_Amount) / SUM(Customer_Count),2) AS Weighted_Avg_Purchase_Amount
+FROM
+    (
+        SELECT
+            age,
+            COUNT(Customer_ID) AS Customer_Count,
+            AVG(Purchase_Amount_USD) AS Avg_Purchase_Amount
+        FROM
+            ANALYTICS_DB.DATA_MART.customer_demographic_shopping_trends
+        GROUP BY
+            age
+    ) AS x
+GROUP BY
+    age
+ORDER BY
+    age;
+
+
+results:  The average spending was highest among individuals aged 53, reaching $67.89, while those aged 48 exhibited the lowest average spending at $52.59.
+
+------------------------------------------------------------------------------------
+-- Query to explore the average purchase amount during different seasons:
+SELECT
+    Season,
+    COUNT(Customer_ID) AS Customer_Count,
+    ROUND(AVG(Purchase_Amount_USD),2) AS Avg_Purchase_Amount
+FROM
+    ANALYTICS_DB.DATA_MART.customer_demographic_shopping_trends
+GROUP BY
+    Season
+ORDER BY
+    Avg_Purchase_Amount DESC;
+
+result:The highest customer count is observed in Fall (975 customers), closely followed by Winter (971 customers), Spring (999 customers), and Summer (955 customers). Interestingly, despite the slight variation in customer counts, the average purchase amounts display a consistent pattern, with the highest average observed in Fall ($61.56) and the lowest in Summer ($58.41). This suggests a relatively stable purchasing behavior across seasons, with Fall attracting the highest customer volume and corresponding higher average purchase amounts.
+
+
+--------------------------------------------------------------------------------------
+-- Query to investigate the relationship between customer subscription status and discount usage:
+SELECT
+    Subscription_Status,
+    Discount_Applied,
+    COUNT(Customer_ID) AS Customer_Count
+FROM
+    ANALYTICS_DB.DATA_MART.customer_demographic_shopping_trends
+GROUP BY
+    Subscription_Status, Discount_Applied;
+
+results: The results illustrate the distribution of customers based on their subscription status and whether they applied a discount. The majority falls into the category of customers without a subscription and without applying a discount (FALSE FALSE), indicating a significant portion of customers who may not be utilizing subscription benefits or discounts. The TRUE TRUE category represents loyal customers subscribed to the service and using discounts, suggesting a cost-conscious segment. Additionally, the FALSE TRUE category highlights customers without subscriptions but still availing discounts, presenting an opportunity for targeted promotions to encourage subscription sign-ups.
+
+Potential Actions:
+- Promote subscriptions to customers in the FALSE TRUE category through targeted marketing efforts.
+- Enhance customer retention by offering loyalty programs or exclusive offers to customers in the TRUE TRUE category.
+- Understand the behavior of customers in the FALSE FALSE category to identify reasons for not using subscriptions or discounts and tailor marketing strategies accordingly.
+
+--------------------------------------------------------------------------------------
+-- Query to rank payment methods based on the total purchase amount:
+WITH RankedPaymentMethods AS (
+    SELECT
+        Payment_Method,
+        SUM(Purchase_Amount_USD) AS Total_Purchase_Amount,
+        RANK() OVER (ORDER BY SUM(Purchase_Amount_USD) DESC) AS Rnk
+    FROM
+        ANALYTICS_DB.DATA_MART.product_information
+    GROUP BY
+        Payment_Method
+)
+SELECT
+    Payment_Method,
+    Total_Purchase_Amount,
+    Rnk
+FROM
+    RankedPaymentMethods
+ORDER BY
+    Rnk;
+
+results: In analyzing the payment methods used by customers, it's evident that Credit Card transactions have the highest total purchase amount, ranking first among the methods. PayPal follows closely as the second most preferred payment method, while Cash takes the third position. Debit Card and Venmo secure the fourth and fifth ranks, respectively, with Bank Transfer rounding up the list at sixth place. This ranking provides insights into customer preferences, highlighting Credit Card and PayPal as popular choices, potentially influencing business strategies to optimize services for these payment methods.
+
+--------------------------------------------------------------------------------
+-- Query to analyze seasonal purchase trends for each item category 
+WITH SeasonalPurchaseTrends AS (
+    SELECT
+        Item_ID,
+        Category,
+        Season,
+        SUM(Purchase_Amount_USD) AS Total_Purchase_Amount,
+        ROW_NUMBER() OVER (PARTITION BY Category ORDER BY SUM(Purchase_Amount_USD) DESC) AS Seasonal_Rank
+    FROM
+        your_table_name
+    GROUP BY
+        Item_ID, Category, Season
+)
+SELECT
+    Item_ID,
+    Category,
+    Season,
+    Total_Purchase_Amount,
+    Seasonal_Rank
+FROM
+    SeasonalPurchaseTrends
+ORDER BY
+    Category, Seasonal_Rank;
+
+------------------------------------------------------------------------------
+WITH item_combo AS (
+    SELECT 
+        Item_Purchased,
+        Category,
+        Size,
+        Color,
+        COUNT(*) AS transactions_per_combo,
+        RANK() OVER (PARTITION BY Item_Purchased ORDER BY transactions_per_combo DESC) AS rnk  
+    FROM 
+        ANALYTICS_DB.DATA_MART.PRODUCT_INFORMATION
+    GROUP BY 
+        1, 2, 3, 4
+    ORDER BY 
+        Item_Purchased
+)
+
+SELECT 
+    *
+FROM 
+    item_combo
+WHERE rnk = 1;
+
+
+results: The query aims to pinpoint the most frequented combinations of Item_Purchased, Category, Size, and Color by identifying those with the highest transaction count for each Item_Purchased. This information can guide various strategic initiatives, including optimizing inventory, fine-tuning marketing efforts, adjusting pricing strategies, and enhancing supply chain efficiency.
