@@ -273,3 +273,33 @@ WHERE rnk = 1;
 
 
 results: The query aims to pinpoint the most frequented combinations of Item_Purchased, Category, Size, and Color by identifying those with the highest transaction count for each Item_Purchased. This information can guide various strategic initiatives, including optimizing inventory, fine-tuning marketing efforts, adjusting pricing strategies, and enhancing supply chain efficiency.
+
+
+
+with customer_age_bins as (
+    select *,
+        case
+            when age <= 20 then '<20'
+            when age between 20 and 30 then '20-30'
+            when age between 30 and 40 then '30-40'
+            when age between 40 and 50 then '40-50'
+            when age between 50 and 60 then '50-60'
+            when age between 60 and 70 then '60-70'
+            end as age_bins
+    from analytics_db.data_mart.customer_demographic_shopping_trends
+    )
+    
+select 
+    age_bins,
+    count(customer_id) as customer_count,
+    case
+        when age_bins = '<20' then 1
+        when age_bins = '20-30' then 2
+        when age_bins = '30-40' then 3
+        when age_bins = '40-50' then 4
+        when age_bins = '50-60' then 5
+        when age_bins = '60-70' then 6
+        end as rnk
+from customer_age_bins
+group by 1
+order by 3;
